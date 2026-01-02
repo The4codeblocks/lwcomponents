@@ -1081,7 +1081,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 
 	meta:set_string ("inventory", "{ main = { }, output = { }, craft = { }, preview = { } }")
@@ -1099,25 +1099,6 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 	inv:set_width ("preview", 1)
 
 	meta:set_string ("formspec", get_formspec (pos))
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Crafter (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -1905,7 +1886,7 @@ minetest.register_node("lwcomponents:crafter", {
 	digiline = digilines_support (),
 	tube = pipeworks_support (),
 
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	can_dig = can_dig,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
@@ -1941,7 +1922,8 @@ minetest.register_node("lwcomponents:crafter_locked", {
 	digiline = digilines_support (),
 	tube = pipeworks_support (),
 
-	after_place_node = after_place_node_locked,
+	on_construct = on_construct,
+	after_place_node = utils.construct_lock ("Crafter"),
 	can_dig = can_dig,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,

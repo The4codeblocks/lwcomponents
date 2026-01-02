@@ -464,6 +464,28 @@ end
 
 
 
+function utils.construct_lock (name)
+	return function (pos, placer, itemstack, pointed_thing)
+		if placer and placer:is_player () then
+			local meta = minetest.get_meta (pos)
+
+			meta:set_string ("owner", placer:get_player_name ())
+			meta:set_string ("infotext", name.." (owned by "..placer:get_player_name ()..")")
+		end
+	end
+end
+
+
+
+function utils.connect_funcs (f, g)
+	return function(...)
+		f(...)
+		g(...)
+	end
+end
+
+
+
 
 
 

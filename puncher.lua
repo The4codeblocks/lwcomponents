@@ -217,37 +217,20 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
-	local is_off = itemstack and (itemstack:get_name () == "lwcomponents:puncher" or
-											itemstack:get_name () == "lwcomponents:puncher_locked")
 
-	meta:set_string ("formspec", get_form_spec (is_off, 1, "false", "false"))
+	meta:set_string ("formspec", get_form_spec (true, 1, "false", "false"))
 
 	meta:set_string ("reach", "1")
 	meta:set_int ("mode", 1)
 	meta:set_string ("entities", "false")
 	meta:set_string ("players", "false")
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
 
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Puncher (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.construct_lock ("Puncher")
 
 
 
@@ -497,7 +480,7 @@ minetest.register_node("lwcomponents:puncher", {
 
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick
 })
@@ -524,6 +507,7 @@ minetest.register_node("lwcomponents:puncher_locked", {
 
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick
@@ -551,7 +535,7 @@ minetest.register_node("lwcomponents:puncher_on", {
 
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick
 })

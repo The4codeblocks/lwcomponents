@@ -148,7 +148,7 @@ end
 
 
 
-local function after_place_base (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local is_off = itemstack and (itemstack:get_name () == "lwcomponents:collector" or
 											itemstack:get_name () == "lwcomponents:collector_locked")
@@ -166,31 +166,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Collector (owned by "..placer:get_player_name ()..")")
-	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.connect_funcs (utils.pipeworks_after_dig, utils.construct_lock ("Collector"))
 
 
 
@@ -560,8 +536,9 @@ minetest.register_node("lwcomponents:collector", {
 	tube = pipeworks_support (),
 
 	on_destruct = on_destruct,
+	on_construct = on_construct,
 	on_receive_fields = on_receive_fields,
-	after_place_node = after_place_node,
+	after_place_node = utils.pipeworks_after_place,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = on_blast,
@@ -588,6 +565,7 @@ minetest.register_node("lwcomponents:collector_locked", {
 	tube = pipeworks_support (),
 
 	on_destruct = on_destruct,
+	on_construct = on_construct,
 	on_receive_fields = on_receive_fields,
 	after_place_node = after_place_node_locked,
 	can_dig = can_dig,
@@ -616,8 +594,9 @@ minetest.register_node("lwcomponents:collector_on", {
 	tube = pipeworks_support (),
 
 	on_destruct = on_destruct,
+	on_construct = on_construct,
 	on_receive_fields = on_receive_fields,
-	after_place_node = after_place_node,
+	after_place_node = utils.pipeworks_after_place,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = on_blast,
@@ -644,6 +623,7 @@ minetest.register_node("lwcomponents:collector_locked_on", {
 	tube = pipeworks_support (),
 
 	on_destruct = on_destruct,
+	on_construct = on_construct,
 	on_receive_fields = on_receive_fields,
 	after_place_node = after_place_node_locked,
 	can_dig = can_dig,

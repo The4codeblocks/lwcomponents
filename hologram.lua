@@ -162,7 +162,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"size[7.5,3]"..
@@ -172,26 +172,11 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 
 	meta:set_string ("formspec", spec)
 	meta:set_int ("block_id", id)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
 
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Hologram (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.construct_lock ("Hologram")
 
 
 
@@ -340,7 +325,7 @@ minetest.register_node("lwcomponents:hologram", {
 	digiline = digilines_support (),
 
 	on_destruct = on_destruct,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_receive_fields = on_receive_fields,
 	on_blast = on_blast,
 	can_dig = can_dig,
@@ -366,6 +351,7 @@ minetest.register_node("lwcomponents:hologram_locked", {
 	digiline = digilines_support (),
 
 	on_destruct = on_destruct,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	on_receive_fields = on_receive_fields,
 	on_blast = on_blast,

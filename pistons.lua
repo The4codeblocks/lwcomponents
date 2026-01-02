@@ -816,7 +816,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"size[7,3.3]"..
@@ -826,9 +826,6 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 
 	meta:set_string ("formspec", spec)
 	meta:set_int ("max_extent", 2)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -1124,7 +1121,7 @@ minetest.register_node("lwcomponents:piston", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer
@@ -1171,7 +1168,7 @@ minetest.register_node("lwcomponents:piston_1", {
 	on_destruct = on_destruct_1,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer
@@ -1218,7 +1215,7 @@ minetest.register_node("lwcomponents:piston_2", {
 	on_destruct = on_destruct_2,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer
@@ -1248,7 +1245,7 @@ minetest.register_node("lwcomponents:piston_sticky", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer
@@ -1295,7 +1292,7 @@ minetest.register_node("lwcomponents:piston_sticky_1", {
 	on_destruct = on_destruct_1,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer
@@ -1342,7 +1339,7 @@ minetest.register_node("lwcomponents:piston_sticky_2", {
 	on_destruct = on_destruct_2,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer

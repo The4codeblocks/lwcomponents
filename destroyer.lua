@@ -26,7 +26,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 
 	if meta then
@@ -46,11 +46,6 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 			inv:set_width ("trash", 1)
 		end
 	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -146,7 +141,8 @@ minetest.register_node("lwcomponents:destroyer", {
 
 	tube = pipeworks_support (),
 
-	after_place_node = after_place_node,
+	on_construct = on_construct,
+	after_place_node = utils.pipeworks_after_place,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_metadata_inventory_put = on_metadata_inventory_put,
 	on_metadata_inventory_move = on_metadata_inventory_move,

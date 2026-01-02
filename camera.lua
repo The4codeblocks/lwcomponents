@@ -191,7 +191,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"formspec_version[3]"..
@@ -206,25 +206,6 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 	meta:set_string ("formspec", spec)
 	meta:set_string ("distance", "5")
 	meta:set_string ("resolution", "16")
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Camera (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -399,7 +380,7 @@ minetest.register_node("lwcomponents:camera", {
 
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick
 })
@@ -425,7 +406,8 @@ minetest.register_node("lwcomponents:camera_locked", {
 
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node_locked,
+	on_construct = on_construct,
+	after_place_node = utils.construct_lock ("Camera"),
 	on_blast = on_blast,
 	on_rightclick = on_rightclick
 })

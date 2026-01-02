@@ -7,7 +7,7 @@ local current_formspec_lists = { }
 
 
 
-local function unit_after_place_node (pos, placer, itemstack, pointed_thing)
+local function unit_on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"formspec_version[3]"..
@@ -23,25 +23,6 @@ local function unit_after_place_node (pos, placer, itemstack, pointed_thing)
 
 	inv:set_size ("main", 32)
 	inv:set_width ("main", 8)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function unit_after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	unit_after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Storage Unit (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -168,7 +149,7 @@ minetest.register_node("lwcomponents:storage_unit", {
 	param2 = 0,
 	floodable = false,
 
-	after_place_node = unit_after_place_node,
+	on_construct = unit_on_construct,
 	can_dig = unit_can_dig,
 	on_blast = unit_on_blast,
 	on_rightclick = unit_on_rightclick
@@ -189,7 +170,8 @@ minetest.register_node("lwcomponents:storage_unit_locked", {
 	param2 = 0,
 	floodable = false,
 
-	after_place_node = unit_after_place_node_locked,
+	on_construct = unit_on_construct,
+	after_place_node = utils.construct_lock ("Storage Unit"),
 	can_dig = unit_can_dig,
 	on_blast = unit_on_blast,
 	on_rightclick = unit_on_rightclick
@@ -871,7 +853,7 @@ end
 
 
 
-local function indexer_after_place_base (pos, placer, itemstack, pointed_thing)
+local function indexer_on_construct (pos, placer, itemstack, pointed_thing)
 	local meta = minetest.get_meta (pos)
 
 	meta:set_string ("inventory", "{ input = { }, output = { }, filter = { } }")
@@ -885,34 +867,6 @@ local function indexer_after_place_base (pos, placer, itemstack, pointed_thing)
 	inv:set_width ("output", 4)
 	inv:set_size ("filter", 8)
 	inv:set_width ("filter", 2)
-end
-
-
-
-local function indexer_after_place_node (pos, placer, itemstack, pointed_thing)
-	indexer_after_place_base (pos, placer, itemstack, pointed_thing)
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function indexer_after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	indexer_after_place_base (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Storage Indexer (owned by "..placer:get_player_name ()..")")
-	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
@@ -1427,8 +1381,9 @@ minetest.register_node("lwcomponents:storage_indexer", {
 	digiline = digilines_support (),
 	tube = pipeworks_support (),
 
+	on_construct = indexer_on_construct,
 	on_receive_fields = indexer_on_receive_fields,
-	after_place_node = indexer_after_place_node,
+	after_place_node = utils.pipeworks_after_place,
 	can_dig = indexer_can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = indexer_on_blast,
@@ -1461,8 +1416,9 @@ minetest.register_node("lwcomponents:storage_indexer_locked", {
 	digiline = digilines_support (),
 	tube = pipeworks_support (),
 
+	on_construct = indexer_on_construct,
 	on_receive_fields = indexer_on_receive_fields,
-	after_place_node = indexer_after_place_node_locked,
+	after_place_node = utils.connect_funcs (utils.pipeworks_after_place, utils.construct_lock ("Storage Indexer")),
 	can_dig = indexer_can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = indexer_on_blast,

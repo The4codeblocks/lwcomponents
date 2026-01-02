@@ -359,6 +359,18 @@ local function on_construct (pos)
 	end
 
 	minetest.set_node (blank_pos, { name = "lwcomponents:cannon_blank" })
+
+	local meta = minetest.get_meta (pos)
+
+	meta:set_string ("sensitive", "true")
+	meta:set_string ("inventory", "{ main = { } }")
+
+	local inv = meta:get_inventory ()
+
+	inv:set_size ("main", 1)
+	inv:set_width ("main", 1)
+
+	meta:set_string ("formspec", get_formspec (pos))
 end
 
 
@@ -376,120 +388,6 @@ local function on_destruct (pos)
 					  blank.name == "lwcomponents:cannon_blank_fire") then
 		minetest.remove_node (blank_pos)
 	end
-end
-
-
-
-local function after_place_base (pos, placer, itemstack, pointed_thing)
-	local meta = minetest.get_meta (pos)
-
-	meta:set_string ("sensitive", "true")
-	meta:set_string ("inventory", "{ main = { } }")
-
-	local inv = meta:get_inventory ()
-
-	inv:set_size ("main", 1)
-	inv:set_width ("main", 1)
-
-	meta:set_string ("formspec", get_formspec (pos))
-end
-
-
-
-local function after_place_node (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Cannon (owned by "..placer:get_player_name ()..")")
-	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function on_place (itemstack, placer, pointed_thing)
-	if pointed_thing and pointed_thing.type == "node" and placer and  placer:is_player () then
-		local param2 = 0
-		local pos = pointed_thing.under
-
-		local on_rightclick = utils.get_on_rightclick (pos, placer)
-		if on_rightclick then
-			return on_rightclick (pos, minetest.get_node (pos), placer, itemstack, pointed_thing)
-		end
-
-		if not can_place (pos, placer) then
-			pos = pointed_thing.above
-
-			if not can_place (pos, placer) then
-				return itemstack
-			end
-		end
-
-		if placer and placer:is_player () then
-			param2 = (minetest.dir_to_facedir (placer:get_look_dir (), false) + 2) % 4
-		end
-
-		minetest.set_node (pos, { name = "lwcomponents:cannon", param1 = 0, param2 = param2 })
-		after_place_node (pos, placer, itemstack, pointed_thing)
-
-		if not utils.is_creative (placer) then
-			itemstack:set_count (itemstack:get_count () - 1)
-		end
-	end
-
-	return itemstack
-end
-
-
-
-local function on_place_locked (itemstack, placer, pointed_thing)
-	if pointed_thing and pointed_thing.type == "node" and placer and  placer:is_player () then
-		local param2 = 0
-		local pos = pointed_thing.under
-
-		local on_rightclick = utils.get_on_rightclick (pos, placer)
-		if on_rightclick then
-			return on_rightclick (pos, minetest.get_node (pos), placer, itemstack, pointed_thing)
-		end
-
-		if not can_place (pos, placer) then
-			pos = pointed_thing.above
-
-			if not can_place (pos, placer) then
-				return itemstack
-			end
-		end
-
-		if placer and placer:is_player () then
-			param2 = (minetest.dir_to_facedir (placer:get_look_dir (), false) + 2) % 4
-		end
-
-		minetest.set_node (pos, { name = "lwcomponents:cannon_locked", param1 = 0, param2 = param2 })
-		after_place_node_locked (pos, placer, itemstack, pointed_thing)
-
-		if not utils.is_creative (placer) then
-			itemstack:set_count (itemstack:get_count () - 1)
-		end
-	end
-
-	return itemstack
 end
 
 
@@ -1025,11 +923,10 @@ minetest.register_node("lwcomponents:cannon", {
 
 	on_construct = on_construct,
 	on_destruct = on_destruct,
-	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
-	after_place_node = after_place_node,
+	after_place_node = utils.pipeworks_after_place,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer,
@@ -1089,11 +986,10 @@ minetest.register_node("lwcomponents:cannon_locked", {
 
 	on_construct = on_construct,
 	on_destruct = on_destruct,
-	on_place = on_place_locked,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
-	after_place_node = after_place_node_locked,
+	after_place_node = utils.connect_funcs (utils.pipeworks_after_dig, utils.construct_lock ("Cannon")),
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 	on_timer = on_timer,

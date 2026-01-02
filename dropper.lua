@@ -175,7 +175,7 @@ end
 
 
 
-local function after_place_base (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 
 	meta:set_string ("inventory", "{ main = { } }")
@@ -190,31 +190,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Dropper (owned by "..placer:get_player_name ()..")")
-	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.connect_funcs (utils.pipeworks_after_place, utils.construct_lock ("Dropper"))
 
 
 
@@ -549,7 +525,8 @@ minetest.register_node("lwcomponents:dropper", {
 	tube = pipeworks_support (),
 
 	on_receive_fields = on_receive_fields,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
+	after_place_node = utils.pipeworks_after_place,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = on_blast,
@@ -577,6 +554,7 @@ minetest.register_node("lwcomponents:dropper_locked", {
 	tube = pipeworks_support (),
 
 	on_receive_fields = on_receive_fields,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,

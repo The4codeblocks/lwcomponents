@@ -510,18 +510,7 @@ end
 
 local function on_construct (pos)
 	conduit_connections:add_node (pos)
-end
-
-
-
-local function on_destruct (pos)
-	deliver_all (pos)
-	conduit_connections:remove_node (pos)
-end
-
-
-
-local function after_place_base (pos, placer, itemstack, pointed_thing)
+	
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"formspec_version[3]"..
@@ -549,30 +538,9 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
-end
-
-
-
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_base (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Conduit (owned by "..placer:get_player_name ()..")")
-	end
-
-	utils.pipeworks_after_place (pos)
-
-	-- If return true no item is taken from itemstack
-	return false
+local function on_destruct (pos)
+	deliver_all (pos)
+	conduit_connections:remove_node (pos)
 end
 
 
@@ -1090,7 +1058,7 @@ minetest.register_node("lwcomponents:conduit", {
 	on_construct = on_construct,
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
-	after_place_node = after_place_node,
+	after_place_node = utils.pipeworks_after_place,
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = on_blast,
@@ -1161,7 +1129,7 @@ minetest.register_node("lwcomponents:conduit_locked", {
 	on_construct = on_construct,
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
-	after_place_node = after_place_node_locked,
+	after_place_node = utils.connect_funcs (utils.pipeworks_after_dig, utils.construct_lock ("Conduit")),
 	can_dig = can_dig,
 	after_dig_node = utils.pipeworks_after_dig,
 	on_blast = on_blast,

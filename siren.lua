@@ -208,37 +208,20 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
-	local is_off = itemstack and (itemstack:get_name () == "lwcomponents:siren" or
-											itemstack:get_name () == "lwcomponents:siren_locked")
 
-	meta:set_string ("formspec", get_form_spec (is_off, 10, 50, 1))
+	meta:set_string ("formspec", get_form_spec (true, 10, 50, 1))
 
 	meta:set_int ("sound", 1)
 	meta:set_int ("distance", 10)
 	meta:set_int ("gain", 50)
 	meta:set_int ("sound_handle", 0)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
 
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Siren (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.construct_lock ("Siren")
 
 
 
@@ -505,7 +488,7 @@ minetest.register_node("lwcomponents:siren", {
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_timer = on_timer,
 	on_rightclick = on_rightclick
@@ -532,6 +515,7 @@ minetest.register_node("lwcomponents:siren_locked", {
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	on_blast = on_blast,
 	on_timer = on_timer,
@@ -559,7 +543,7 @@ minetest.register_node("lwcomponents:siren_on", {
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_timer = on_timer,
 	on_rightclick = on_rightclick
@@ -614,7 +598,7 @@ minetest.register_node("lwcomponents:siren_alarm", {
 	on_destruct = on_destruct,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_timer = on_timer,
 	on_rightclick = on_rightclick

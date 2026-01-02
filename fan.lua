@@ -147,7 +147,7 @@ end
 
 
 
-local function after_place_node (pos, placer, itemstack, pointed_thing)
+local function on_construct (pos)
 	local meta = minetest.get_meta (pos)
 	local spec =
 	"size[7.5,3]"..
@@ -155,26 +155,11 @@ local function after_place_node (pos, placer, itemstack, pointed_thing)
 	"button_exit[2.5,2;3,1;submit;Set]"
 
 	meta:set_string ("formspec", spec)
-
-	-- If return true no item is taken from itemstack
-	return false
 end
 
 
 
-local function after_place_node_locked (pos, placer, itemstack, pointed_thing)
-	after_place_node (pos, placer, itemstack, pointed_thing)
-
-	if placer and placer:is_player () then
-		local meta = minetest.get_meta (pos)
-
-		meta:set_string ("owner", placer:get_player_name ())
-		meta:set_string ("infotext", "Fan (owned by "..placer:get_player_name ()..")")
-	end
-
-	-- If return true no item is taken from itemstack
-	return false
-end
+local after_place_node_locked = utils.construct_lock ("Fan")
 
 
 
@@ -357,7 +342,7 @@ minetest.register_node("lwcomponents:fan", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
 })
@@ -385,6 +370,7 @@ minetest.register_node("lwcomponents:fan_locked", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	on_blast = on_blast,
 	on_rightclick = on_rightclick,
@@ -413,7 +399,7 @@ minetest.register_node("lwcomponents:fan_on", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
-	after_place_node = after_place_node,
+	on_construct = on_construct,
 	on_blast = on_blast,
 	on_timer = on_timer,
 	on_rightclick = on_rightclick,
@@ -442,6 +428,7 @@ minetest.register_node("lwcomponents:fan_locked_on", {
 	on_place = on_place,
 	on_receive_fields = on_receive_fields,
 	can_dig = can_dig,
+	on_construct = on_construct,
 	after_place_node = after_place_node_locked,
 	on_blast = on_blast,
 	on_timer = on_timer,
