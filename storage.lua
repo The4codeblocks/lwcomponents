@@ -390,13 +390,15 @@ local function output_items (pos, name, count)
 		end
 	end
 
-	if stack:get_count () < 1 then
+	count = stack:get_count ()
+
+	if count < 1 then
 		return 0
 	end
 
 	local inv_list = get_inventory_list (pos)
 	local item = inv_list[name]
-	local left = stack:get_count ()
+	local left = count
 
 	if item then
 		for i = #item, 1, -1 do
